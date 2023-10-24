@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconciler</title>
+</head>
+<script>
+
+    let todos1 = [];
+    let todos2 = [];
+    var newTodos1 = [];
+    todos1 = [
+        {
+            id: 1,
+            title: "do clean",
+            description: "room clean"
+        },
+        {
+            id: 2,
+            title: "do fun",
+            description: "in a comfortable way"
+        },
+        {
+            id: 3,
+            title: "have water",
+            description: "1.5l a day"
+        }
+    ]
+
+    todos2 = [
+        {
+            id: 1,
+            title: "do clean",
+            description: "room clean changed"
+        },
+
+        {
+            id: 3,
+            title: "have water changed much",
+            description: "1.5ltr a day"
+        },
+        {
+            id: 4,
+            title: "have drink some juice properly",
+            description: "s a day"
+        },
+        {
+            id: 5,
+            title: "go to wedding",
+            description: "next month"
+        },
+        {
+            id: 2,
+            title: "do read",
+            description: "some books for a better knowledge"
+        },
+    ]
+
+
+    function createDomElements(data, check) {
+        var parentElement = document.getElementById('mainDiv');
+        if (check === 0) {
+            parentElement.innerHTML = "";
+        }
+
+        for (var i = 0; i < data.length; i++) {
+            console.log(data[i].id);
+
+            var childElement = document.createElement('div');
+
+            var grandChildElement1 = document.createElement('span');
+            grandChildElement1.innerHTML = data[i].id;
+
+            var grandChildElement2 = document.createElement('span');
+            grandChildElement2.innerHTML = data[i].title;
+
+            var grandChildElement3 = document.createElement('span');
+            grandChildElement3.innerHTML = data[i].description;
+
+            childElement.appendChild(grandChildElement1);
+            childElement.appendChild(grandChildElement2);
+            childElement.appendChild(grandChildElement3);
+
+            parentElement.appendChild(childElement);
+        }
+    }
+
+    function changeTodos1(todos1) {
+        var updatedIds = [];
+        for (var i = 0; i < todos1.length; i++) {
+            var exist1 = todos2.find((obj) => obj.id === todos1[i].id);
+            if (exist1) {
+                console.log(exist1);
+                updatedIds.push({
+                    id: exist1.id,
+                    title: exist1.title,
+                    description: exist1.description
+                })
+            }
+        }
+
+        for (var i = 0; i < todos1.length; i++) {
+            for (var j = 0; j < updatedIds.length; j++) {
+                if (todos1[i].id != updatedIds[j].id) {
+
+                }
+                else {
+                    if (todos1[i].title != updatedIds[j].title) {
+                        todos1[i].title = updatedIds[j].title;
+                    }
+                    if (todos1[i].description != updatedIds[j].description) {
+                        todos1[i].description = updatedIds[j].description;
+                    }
+
+                }
+            }
+        }
+    }
+
+    function deleteFn() {
+        var parentElement = document.getElementById('mainDiv');
+
+        var deletedIds = [];
+        var addedIds = [];
+        // var updatedIds = [];
+
+
+
+        for (var i = 0; i < todos1.length; i++) {
+            var exist1 = todos2.find((obj) => obj.id === todos1[i].id);
+            if (!exist1) {
+
+                deletedIds.push(todos1[i].id);
+            } else {
+                console.log(exist1);
+
+            }
+        }
+        // console.log(updatedIds);
+        console.log(todos2);
+
+
+
+        console.log(todos1);
+
+        for (var i = 0; i < todos1.length; i++) {
+            newTodos1[i] = todos1[i];
+        }
+        console.log(newTodos1);
+
+
+
+        for (var i = 0; i < todos2.length; i++) {
+            var exist2 = todos1.find((obj) => obj.id === todos2[i].id);
+            if (!exist2) {
+                addedIds.push({
+                    id: todos2[i].id,
+                    title: todos2[i].title,
+                    description: todos2[i].description,
+
+                });
+            }
+        }
+        console.log(addedIds, 1);
+
+        for (var i = 0; i < parentElement.childNodes.length; i++) {
+
+            for (var j = 0; j < deletedIds.length; j++) {
+                if (deletedIds[j] == parentElement.childNodes[i].firstChild.innerHTML) {
+
+                    parentElement.removeChild(parentElement.childNodes[i]);
+                }
+            }
+        }
+
+        
+        createDomElements(addedIds,1)
+       
+    }
+    
+
+    window.setTimeout(() => {
+        changeTodos1(todos1);
+        createDomElements(todos1, 0);
+        deleteFn();
+    }, 1000);
+
+
+
+</script>
+
+<body>
+    <div id="mainDiv"></div>
+</body>
+
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO app</title>
+
+    <style>
+       
+        li {
+            list-style-type: none;
+            
+        }
+    </style>
+</head>
+<script>
+
+    function parseResponse(jsonBody) {   
+        console.log(jsonBody);
+        var parentElement = document.getElementById('mainDiv');
+
+        var childElement = document.createElement('div');
+
+          var grandChildElement1 = document.createElement('span');
+          grandChildElement1.innerHTML = jsonBody.id;
+
+          var grandChildElement2 = document.createElement('span');
+          grandChildElement2.innerHTML = jsonBody.title;
+
+          var grandChildElement3 = document.createElement('span');
+          grandChildElement3.innerHTML = jsonBody.description;
+
+          var grandChildElement4 = document.createElement('button');
+          grandChildElement4.textContent  = "DELETE";
+          var itemId = jsonBody.id;
+          grandChildElement4.setAttribute('onclick', "deleteTodo(" + itemId + ")");
+
+          childElement.appendChild(grandChildElement1);
+          childElement.appendChild(grandChildElement2);
+          childElement.appendChild(grandChildElement3);
+          childElement.appendChild(grandChildElement4);
+
+     
+          parentElement.appendChild(childElement);
+          console.log(childElement.nth-child(1))
+    }
+    function parseResponseAllTodos(jsonBody) {
+        var parentElement = document.getElementById('mainDiv');
+
+        for(var i=0;i<jsonBody.length;i++) {
+
+          var childElement = document.createElement('div');
+
+          var grandChildElement1 = document.createElement('span');
+          grandChildElement1.innerHTML = jsonBody[i].id;
+
+          var grandChildElement2 = document.createElement('span');
+          grandChildElement2.innerHTML = jsonBody[i].title;
+
+          var grandChildElement3 = document.createElement('span');
+          grandChildElement3.innerHTML = jsonBody[i].description;
+
+          var grandChildElement4 = document.createElement('button');
+          grandChildElement4.textContent  = "DELETE";
+          var itemId = jsonBody[i].id;
+          grandChildElement4.setAttribute('onclick', "deleteTodo(" + itemId + ")");
+
+          childElement.appendChild(grandChildElement1);
+          childElement.appendChild(grandChildElement2);
+          childElement.appendChild(grandChildElement3);
+          childElement.appendChild(grandChildElement4);
+
+     
+          parentElement.appendChild(childElement);
+
+         
+        }
+        
+    }
+
+    function deleteDone(itemId) {
+        console.log('deleted id : '+itemId);
+        var parentElement = document.getElementById('mainDiv');
+        console.log(parentElement.childNodes)
+
+        for(var i=0; i<parentElement.childNodes.length; i++) {
+            // console.log(parentElement.childNodes[i].firstChild.innerHTML)
+            if(itemId == parentElement.childNodes[i].firstChild.innerHTML) {
+                parentElement.removeChild(parentElement.childNodes[i])
+            }
+        }
+    }
+    
+    function deleteTodo(itemId) {
+        fetch("http://localhost:3000/todos/" + itemId, {
+            method : "DELETE",
+        }).then(deleteDone(itemId));
+       
+    }
+
+
+    function callbackFn(result) {
+       result.json().then(parseResponse);
+    }
+    function callbackFnAllTodos(result) {
+        
+       result.json().then(parseResponseAllTodos);
+    }
+    function onPress() {
+        var inputText = document.getElementById("title").value;
+        var inputDesc = document.getElementById("desc").value;
+
+        fetch("http://localhost:3000/todos",{
+            method : "POST",
+            body : JSON.stringify({
+                title: inputText,
+                description : inputDesc
+            }),
+            headers : {
+                "Content-Type" : "application/json"
+            }
+        }).then(callbackFn)
+    }
+
+    function getAllTodos() {
+        fetch("http://localhost:3000/todos",{
+            method : "GET",
+        }).then(callbackFnAllTodos);
+    }
+    getAllTodos();
+</script>
+<body>
+    Todo Title
+    <input type="text" id="title" /><br><br>
+    Todo Description
+    <input type="text" id="desc" /><br><br>
+    <button onclick="onPress()"> send Todo </button><br><br>
+
+    <div id="mainDiv"></div>
+    
+
+
+</body>
+</html>
