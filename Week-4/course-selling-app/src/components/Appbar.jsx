@@ -2,34 +2,27 @@ import { Button, Typography, AppBar, Box, Toolbar } from "@mui/material";
 import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Appbar() {
+function Appbar({userEmail, setUserEmail}) {
   const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState(null);
-  const [loggedIn, setLoggedIn] = useState(false);
-  // const [role, setRole] = useState("");
+
   const role = localStorage.getItem("role");
 
-  useEffect(() => {
-    console.log(role);
+  // useEffect(() => {
+  //   console.log(role);
    
-      function callback1(res) {
-        res.json().then(callback2);
-      }
+  //     // function callback1(res) {
+  //     //   res.json().then(callback2);
+  //     // }
 
-      function callback2(data) {
-        setLoggedIn(true);
+  //     // function callback2(data) {
+  //     //   setLoggedIn(true);
 
-        setUserEmail(data.username);
-      }
+  //     //   setUserEmail(data.username);
+  //     // }
 
-      fetch(`http://localhost:3000/${role}/me`, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }).then(callback1);
+     
     
-  }, [userEmail, loggedIn]);
+  // }, [userEmail, loggedIn]);
 
   return (
     <Box>
@@ -83,13 +76,13 @@ function Appbar() {
                   onClick={() => {
                     localStorage.setItem("token", null);
                     localStorage.setItem("role", null);
-
-                    navigate("/signin");
+                    setUserEmail(null)
+                    // navigate("/signin");
                   }}
                 >
                   Logout
                 </Button>
-              </div>
+              </div>l;lp
             </>
           ) : (
             <>

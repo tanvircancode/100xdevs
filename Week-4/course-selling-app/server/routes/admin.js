@@ -41,7 +41,7 @@ router.post("/signup", async (req, res) => {
             username : admin.username
           })
     }else {
-        res.status(403).json({message: 'Admin doesnt exist'});
+        res.status(403).json({message: 'Admin does not exist'});
     }
    
   });
