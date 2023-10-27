@@ -77,12 +77,12 @@ function Appbar({userEmail, setUserEmail}) {
                     localStorage.setItem("token", null);
                     localStorage.setItem("role", null);
                     setUserEmail(null)
-                    // navigate("/signin");
+                    navigate("/signin");
                   }}
                 >
                   Logout
                 </Button>
-              </div>l;lp
+              </div>
             </>
           ) : (
             <>

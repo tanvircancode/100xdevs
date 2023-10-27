@@ -10,8 +10,10 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../config";
+import axios from "axios";
 
-function Signup() {
+function Signup({setUserEmail}) {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -32,25 +34,13 @@ function Signup() {
     setRole("admin");
   };
 
-  const handleSignup = () => {
+  const handleSignup = async() => {
     
-    function callback1(res) {
-      res.json().then(callback2);
-    }
-
-    function callback2(data) {
-      if (!data.token) {
-        alert(data.message);
-      } else {
-        navigate("/signin");
-      }
-    }
-
-    fetch(`http://localhost:3000/${role}/signup`, {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-      headers: { "Content-type": "application/json" },
-    }).then(callback1);
+    const response = await axios.post(`${BASE_URL}/${role}/signup`, {
+      username,
+      password
+    })
+    navigate("/signin");
   };
 
   return (

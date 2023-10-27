@@ -11,8 +11,9 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { BASE_URL } from "../config.js";
 
-function Signin() {
+function Signin({ setUserEmail }) {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -33,36 +34,23 @@ function Signin() {
     setRole("admin");
   };
 
-  const handleLogin = () => {
-    console.log(role);
-   
-    function callback1(res) {
-      console.log(res);
-      res.json().then(callback2);
-    }
-
-    function callback2(data) {
-
-      console.log(data);
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);
-        navigate("/courses");
-      } else {
-        alert("Invalid username or password");
-        navigate("/signin");
-      }
-    }
-
-    
-      
-      fetch(`http://localhost:3000/${role}/login`, {
-        method: "POST",
+  const handleLogin = async () => {
+    const response = await axios.post(
+      `${BASE_URL}/${role}/login`,
+      {},
+      {
         headers: {
-          username: username,
-          password: password,
+          "Content-type": "application/json",
+          username,
+          password
         },
-      }).then(callback1);
+      }
+    ).then((res)=> {
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role);
+      setUserEmail(username);
+      navigate("/courses");
+    }).catch((error) => alert(error.response.data.message))
     
   };
 
@@ -130,13 +118,20 @@ function Signin() {
 
           <br />
           <Box textAlign="center">
-            <Button  size="large" variant="contained"  style={{width:"100%"}} onClick={handleLogin}>
+            <Button
+              size="large"
+              variant="contained"
+              style={{ width: "100%" }}
+              onClick={handleLogin}
+            >
               Login
             </Button>
           </Box>
         </Card>
       </div>
     </div>
+
+    //   }}
   );
 }
 
