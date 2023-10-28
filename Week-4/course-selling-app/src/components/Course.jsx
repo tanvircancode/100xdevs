@@ -7,33 +7,40 @@ import {
   TextField,
   Grid,
 } from "@mui/material";
+
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { BASE_URL } from "../config";
+import { courseState } from "../store/atoms/course";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";  
+import { isCourseLoading, courseTitle, courseImage, coursePrice } from "../store/selectors/course"; 
 
 function Course() {
   const { courseId } = useParams();
-
-  const [course, setCourse] = useState(null);
+  const setCourse = useSetRecoilState(courseState);
+  const courseLoading = useRecoilValue(isCourseLoading);
 
   const [hasPurchased, setHasPurchased] = useState(false);
 
   const role = localStorage.getItem("role");
   console.log(role);
 
-  const getCourse = () => {
-    fetch("http://localhost:3000/users/haspurchased/" + courseId, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    }).then((res) => {
-      console.log(res);
-      if (res.status == 200) {
+  const getCourse = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/users/haspurchased/`  + courseId , {
+        headers : {
+           Authorization : `Bearer ` + localStorage.get('token')
+        }
+      });
+      if(response.data.status == 200) {
         setHasPurchased(true);
       }
-    });
-  };
+    } catch (e) {
+      console.log(e)
+    }
+
+  }
 
   useEffect(() => {
     function callback1(res) {
@@ -52,6 +59,12 @@ function Course() {
       },
     }).then(callback1);
 
+    const response = axios.get(`${BASE_URL}/${role}/course/`  + courseId, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
+
     if (role == "users") {
       getCourse();
     }
@@ -67,14 +80,13 @@ function Course() {
 
   return (
     <div>
-      <GrayTopper title={course.title} />
+      <GrayTopper />
 
       <Grid container>
         {role == "admin" ? (
           <Grid item lg={8} md={12} sm={12}>
             <UpdateCard
-              course={course}
-              setCourse={setCourse}
+              
               hasPurchased={hasPurchased}
               setHasPurchased={setHasPurchased}
               role={role}
@@ -92,14 +104,17 @@ function Course() {
           </Grid>
         )}
         <Grid item lg={4} md={12} sm={12}>
-          <CourseCard course={course} />
+          <CourseCard />
         </Grid>
       </Grid>
     </div>
   );
 }
 
-function GrayTopper({ title }) {
+function GrayTopper() {
+
+  const title = useRecoilValue(courseTitle);
+
   return (
     <div
       style={{
@@ -127,7 +142,12 @@ function GrayTopper({ title }) {
   );
 }
 
-function CourseCard({ course }) {
+function CourseCard() {
+
+  const title = useRecoilValue(courseTitle);
+  const imageLink = useRecoilValue(courseImage);
+  const price = useRecoilValue(coursePrice);
+
   return (
     <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
       <Card
@@ -140,14 +160,14 @@ function CourseCard({ course }) {
           zIndex: 2,
         }}
       >
-        <img src={course.imageLink} style={{ width: 300, height: 170 }} />
+        <img src={imageLink} style={{ width: 300, height: 170 }} />
         <div style={{ marginLeft: 15 }}>
           <Typography style={{ fontWeight: 600 }} variant="h6">
-            {course.title}
+            {title}
           </Typography>
           <Typography variant="subtitle2">Price</Typography>
           <Typography variant="subtitle1" style={{ fontWeight: "bold" }}>
-            Tk {course.price}
+            Tk {price}
           </Typography>
         </div>
       </Card>
@@ -156,18 +176,17 @@ function CourseCard({ course }) {
 }
 
 function UpdateCard({
-  course,
-  setCourse,
   hasPurchased,
   setHasPurchased,
   role,
 }) {
+
+  
   return (
     <DisplayField
      
       role={role}
-      course={course}
-      setCourse={setCourse}
+      
       hasPurchased={hasPurchased}
       setHasPurchased={setHasPurchased}
     />
@@ -175,22 +194,15 @@ function UpdateCard({
 }
 
 function PurchaseCard({
-  course,
-  setCourse,
+ 
   hasPurchased,
   setHasPurchased,
   role,
 }) {
-  const [title, setTitle] = useState(course.title);
-  const [description, setDescription] = useState(course.description);
-  const [image, setImage] = useState(course.imageLink);
-  const [price, setPrice] = useState(course.price);
 
   return (
     <DisplayField
       role={role}
-      course={course}
-      setCourse={setCourse}
       hasPurchased={hasPurchased}
       setHasPurchased={setHasPurchased}
     />
@@ -198,16 +210,19 @@ function PurchaseCard({
 }
 
 function DisplayField({
-  course,
-  setCourse,
+ 
   hasPurchased,
   setHasPurchased,
   role,
 }) {
-  const [title, setTitle] = useState(course.title);
-  const [description, setDescription] = useState(course.description);
-  const [image, setImage] = useState(course.imageLink);
-  const [price, setPrice] = useState(course.price);
+  
+  const [courseDetails, setCourse] = useRecoilState(courseState);
+
+  course [title, setTitle] = useState(courseDetails.course.title);
+  course [description, setDescription] = useState(courseDetails.course.description);
+  course [price, setPrice] = useState(courseDetails.course.price);
+  course [image, setImage] = useState(courseDetails.course.imageLink);
+
   const isEditable = role == "admin";
 
   const handlePurchaseCourse = () => {

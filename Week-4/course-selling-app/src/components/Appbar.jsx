@@ -1,29 +1,23 @@
 import { Button, Typography, AppBar, Box, Toolbar } from "@mui/material";
 import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { isUserLoading } from "../store/selectors/isUserLoading";
+import { userEmailState } from "../store/selectors/userEmail";
+import { userState } from "../store/atoms/user";
 
-function Appbar({userEmail, setUserEmail}) {
+function Appbar() {
   const navigate = useNavigate();
+  const userLoading = useRecoilValue(isUserLoading);
+  const userEmail = useRecoilValue(userEmailState);
+  const setUser = useSetRecoilState(userState);
 
   const role = localStorage.getItem("role");
 
-  // useEffect(() => {
-  //   console.log(role);
-   
-  //     // function callback1(res) {
-  //     //   res.json().then(callback2);
-  //     // }
-
-  //     // function callback2(data) {
-  //     //   setLoggedIn(true);
-
-  //     //   setUserEmail(data.username);
-  //     // }
-
-     
-    
-  // }, [userEmail, loggedIn]);
-
+  if(userLoading) {
+    return <div>Loading...</div>
+  }
+  
   return (
     <Box>
       <AppBar position="static">
