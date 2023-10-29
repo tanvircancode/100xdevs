@@ -5,6 +5,7 @@ import Courses from "./components/Courses";
 import Signin from "./components/Signin";
 import UserCourses from "./components/UserCourses";
 import AddCourse from "./components/AddCourse.jsx";
+import PurchaseCourse from "./components/PurchaseCourse.jsx";
 import Course from "./components/Course";
 import { useEffect, useState } from "react";
 import { BASE_URL } from "./config.js";
@@ -25,7 +26,7 @@ function App() {
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/courses" element={<Courses />} />
-
+          <Route path="/purchasecourse" element={<PurchaseCourse />} />
           <Route path="/course/:courseId" element={<Course />} />
           <Route path="/usercourses" element={<UserCourses />} />
         </Routes>

@@ -13,64 +13,35 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "../config";
 import { courseState } from "../store/atoms/course";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";  
-import { isCourseLoading, courseTitle, courseImage, coursePrice } from "../store/selectors/course"; 
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  isCourseLoading,
+  courseTitle,
+  courseImage,
+  coursePrice,
+} from "../store/selectors/course";
 
 function Course() {
   const { courseId } = useParams();
   const setCourse = useSetRecoilState(courseState);
   const courseLoading = useRecoilValue(isCourseLoading);
 
-  const [hasPurchased, setHasPurchased] = useState(false);
-
-  const role = localStorage.getItem("role");
-  console.log(role);
-
-  const getCourse = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/users/haspurchased/`  + courseId , {
-        headers : {
-           Authorization : `Bearer ` + localStorage.get('token')
-        }
-      });
-      if(response.data.status == 200) {
-        setHasPurchased(true);
-      }
-    } catch (e) {
-      console.log(e)
-    }
-
-  }
-
   useEffect(() => {
-    function callback1(res) {
-      res.json().then(callback2);
-    }
-
-    function callback2(data) {
-      setCourse(data.course);
-      console.log(data);
-    }
-
-    fetch(`http://localhost:3000/${role}/course/` + courseId, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    }).then(callback1);
-
-    const response = axios.get(`${BASE_URL}/${role}/course/`  + courseId, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    })
-
-    if (role == "users") {
-      getCourse();
-    }
+    axios
+      .get(`${BASE_URL}/admin/course/${courseId}`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
+      .then((res) => {
+        setCourse({ isLoading: false, course: res.data.course });
+      })
+      .catch((e) => {
+        setCourse({ isLoading: false, course: null });
+      });
   }, []);
 
-  if (!course) {
+  if (courseLoading) {
     return (
       <div style={{ display: "flex", justifyContent: "center" }}>
         <CircularProgress color="success" />
@@ -83,26 +54,10 @@ function Course() {
       <GrayTopper />
 
       <Grid container>
-        {role == "admin" ? (
-          <Grid item lg={8} md={12} sm={12}>
-            <UpdateCard
-              
-              hasPurchased={hasPurchased}
-              setHasPurchased={setHasPurchased}
-              role={role}
-            />
-          </Grid>
-        ) : (
-          <Grid item lg={8} md={12} sm={12}>
-            <PurchaseCard
-              course={course}
-              setCourse={setCourse}
-              hasPurchased={hasPurchased}
-              setHasPurchased={setHasPurchased}
-              role={role}
-            />
-          </Grid>
-        )}
+        <Grid item lg={8} md={12} sm={12}>
+          <UpdateCard />
+        </Grid>
+
         <Grid item lg={4} md={12} sm={12}>
           <CourseCard />
         </Grid>
@@ -112,7 +67,6 @@ function Course() {
 }
 
 function GrayTopper() {
-
   const title = useRecoilValue(courseTitle);
 
   return (
@@ -143,7 +97,6 @@ function GrayTopper() {
 }
 
 function CourseCard() {
-
   const title = useRecoilValue(courseTitle);
   const imageLink = useRecoilValue(courseImage);
   const price = useRecoilValue(coursePrice);
@@ -175,90 +128,42 @@ function CourseCard() {
   );
 }
 
-function UpdateCard({
-  hasPurchased,
-  setHasPurchased,
-  role,
-}) {
+function UpdateCard() {
 
-  
-  return (
-    <DisplayField
-     
-      role={role}
-      
-      hasPurchased={hasPurchased}
-      setHasPurchased={setHasPurchased}
-    />
-  );
-}
-
-function PurchaseCard({
- 
-  hasPurchased,
-  setHasPurchased,
-  role,
-}) {
-
-  return (
-    <DisplayField
-      role={role}
-      hasPurchased={hasPurchased}
-      setHasPurchased={setHasPurchased}
-    />
-  );
-}
-
-function DisplayField({
- 
-  hasPurchased,
-  setHasPurchased,
-  role,
-}) {
-  
   const [courseDetails, setCourse] = useRecoilState(courseState);
 
-  course [title, setTitle] = useState(courseDetails.course.title);
-  course [description, setDescription] = useState(courseDetails.course.description);
-  course [price, setPrice] = useState(courseDetails.course.price);
-  course [image, setImage] = useState(courseDetails.course.imageLink);
+  const [title, setTitle] = useState(courseDetails.course.title);
+  const [description, setDescription] = useState(
+    courseDetails.course.description
+  );
+  const [price, setPrice] = useState(courseDetails.course.price);
+  const [image, setImage] = useState(courseDetails.course.imageLink);
 
-  const isEditable = role == "admin";
-
-  const handlePurchaseCourse = () => {
-    fetch("http://localhost:3000/users/courses/" + course._id, {
-      method: "POST",
-
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    });
-    setHasPurchased(false);
-  };
-
-  const handleUpdateCourse = () => {
-    fetch("http://localhost:3000/admin/courses/" + course._id, {
-      method: "PUT",
-      body: JSON.stringify({
+  const handleUpdateCourse = async () => {
+    await axios.put(
+      `${BASE_URL}/admin/courses/${courseDetails.course._id}`,
+      {
         title: title,
         description: description,
         imageLink: image,
         published: true,
         price,
-      }),
-      headers: {
-        "Content-type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
       },
-    });
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
     let updatedCourse = {
-      _id: course._id,
+      _id: courseDetails.course._id,
       title,
       description,
       imageLink: image,
       price,
     };
-    setCourse(updatedCourse);
+    setCourse({ isLoading: false, course: updatedCourse });
   };
 
   return (
@@ -272,18 +177,13 @@ function DisplayField({
         }}
       >
         <Typography variant="h5">Update Course </Typography>
+
         <br />
         <br />
         <TextField
           value={title}
           fullWidth={true}
           label="Title"
-          InputProps={{
-            readOnly: isEditable ? false : true,
-            style: {
-              color: isEditable ? "black" : "gray",
-            },
-          }}
           variant="outlined"
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -293,12 +193,6 @@ function DisplayField({
           value={description}
           fullWidth={true}
           label="Description"
-          InputProps={{
-            readOnly: isEditable ? false : true,
-            style: {
-              color: isEditable ? "black" : "gray",
-            },
-          }}
           variant="outlined"
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -308,12 +202,6 @@ function DisplayField({
           value={image}
           fullWidth={true}
           label="Image Link"
-          InputProps={{
-            readOnly: isEditable ? false : true,
-            style: {
-              color: isEditable ? "black" : "gray",
-            },
-          }}
           variant="outlined"
           onChange={(e) => setImage(e.target.value)}
         />
@@ -323,12 +211,6 @@ function DisplayField({
           value={price}
           fullWidth={true}
           label="Price"
-          InputProps={{
-            readOnly: isEditable ? false : true,
-            style: {
-              color: isEditable ? "black" : "gray",
-            },
-          }}
           variant="outlined"
           onChange={(e) => setPrice(e.target.value)}
         />
@@ -338,45 +220,12 @@ function DisplayField({
           <Button
             size="large"
             variant="contained"
-            disabled={role=='users' && !hasPurchased}
             style={{ width: "100%" }}
-            onClick={
-              role == "admin" ? handleUpdateCourse : handlePurchaseCourse
-            }
+            onClick={handleUpdateCourse}
           >
-            {role == "admin"
-              ? "Update Course"
-              : hasPurchased
-              ? "purchase Course"
-              : "Course Already Purchased!"
-              }
+            Update Course
           </Button>
         </Box>
-        {role != "admin" ?? (
-          <>
-            {hasPurchased ? (
-              <Box textAlign="center">
-                <Button
-                  size="large"
-                  variant="contained"
-                  style={{ width: "100%" }}
-                  onClick={handlePurchaseCourse}
-                >
-                  Purchase Course
-                </Button>
-              </Box>
-            ) : (
-              <Button
-                disabled
-                size="large"
-                variant="contained"
-                style={{ width: "100%", color: "#000000", fontWeight: 600 }}
-              >
-                Course Already Purchased!
-              </Button>
-            )}
-          </>
-        )}
       </Card>
     </div>
   );

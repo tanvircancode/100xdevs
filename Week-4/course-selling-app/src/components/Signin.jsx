@@ -9,17 +9,20 @@ import {
   FormGroup,
 } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../config.js";
+import { useNavigate } from "react-router-dom";
+import { userState } from "../store/atoms/user.js";
+import { useSetRecoilState } from "recoil";
 
-function Signin({ setUserEmail }) {
+function Signin() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("users");
   const [isChecked1, setIsChecked1] = useState(true);
   const [isChecked2, setIsChecked2] = useState(false);
+  const setUser = useSetRecoilState(userState);
 
   const handleCheckbox1 = () => {
     setIsChecked1(!isChecked1);
@@ -48,7 +51,10 @@ function Signin({ setUserEmail }) {
     ).then((res)=> {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
-      setUserEmail(username);
+      setUser({
+        isLoading: false,
+        userEmail : username
+      });
       navigate("/courses");
     }).catch((error) => alert(error.response.data.message))
     

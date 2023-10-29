@@ -45,7 +45,7 @@ function Appbar() {
                     color="inherit"
                     style={{ fontWeight: 600 }}
                     onClick={() => {
-                      navigate("/usercourses");
+                      navigate("/purchasecourse");
                     }}
                   >
                     Purchased Course
@@ -70,7 +70,11 @@ function Appbar() {
                   onClick={() => {
                     localStorage.setItem("token", null);
                     localStorage.setItem("role", null);
-                    setUserEmail(null)
+                    setUser({
+                      isLoading: false,
+                      userEmail: null,
+                    });
+
                     navigate("/signin");
                   }}
                 >
