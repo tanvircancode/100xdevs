@@ -45,7 +45,7 @@ function Appbar() {
                     color="inherit"
                     style={{ fontWeight: 600 }}
                     onClick={() => {
-                      navigate("/purchasecourse");
+                      navigate("/usercourses");
                     }}
                   >
                     Purchased Course

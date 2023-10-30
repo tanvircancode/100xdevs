@@ -1,33 +1,22 @@
-import {
-  Box,
-  Button,
-  Card,
-  Typography,
-  CircularProgress,
-  TextField,
-  Grid,
-} from "@mui/material";
+import { Card, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import { BASE_URL } from "../config";
+import axios from "axios";
 
 function UserCourses() {
   const [courses, setCourses] = useState([]);
-
-  function callback1(res) {
-    res.json().then(callback2);
-  }
-
-  function callback2(data) {
-    setCourses(data.purchasedCourses);
-    console.log(data.purchasedCourses);
-  }
-
+  
   useEffect(() => {
-    fetch("http://localhost:3000/users/purchasedCourses/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }).then(callback1);
+    axios
+      .get(`${BASE_URL}/users/purchasedCourses`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        setCourses(res.data.purchasedCourses);
+      })
+      .catch((e) => console.log(e));
   }, []);
 
   return (
@@ -46,7 +35,7 @@ function UserCourses() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              height: 100
+              height: 100,
             }}
           >
             <Typography variant="h6"> No Courses purchased!!</Typography>

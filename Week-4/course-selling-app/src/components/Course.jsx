@@ -132,12 +132,19 @@ function UpdateCard() {
 
   const [courseDetails, setCourse] = useRecoilState(courseState);
 
-  const [title, setTitle] = useState(courseDetails.course.title);
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState(
-    courseDetails.course.description
+    ""
   );
-  const [price, setPrice] = useState(courseDetails.course.price);
-  const [image, setImage] = useState(courseDetails.course.imageLink);
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
+
+  useEffect(() => {
+    setTitle(courseDetails.course.title);
+    setDescription(courseDetails.course.description);
+    setPrice(courseDetails.course.price);
+    setImage(courseDetails.course.imageLink);
+}, [courseDetails]);
 
   const handleUpdateCourse = async () => {
     await axios.put(

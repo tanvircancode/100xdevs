@@ -14,22 +14,23 @@ import axios from "axios";
 import { BASE_URL } from "../config";
 import { courseState } from "../store/atoms/course";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+
 import {
   isCourseLoading,
   courseTitle,
   courseImage,
   coursePrice,
 } from "../store/selectors/course";
+import { purchaseState } from "../store/atoms/purchase";
 
 function Course() {
   const { courseId } = useParams();
   const setCourse = useSetRecoilState(courseState);
   const courseLoading = useRecoilValue(isCourseLoading);
 
-  const [hasPurchased, setHasPurchased] = useState(false);
+  const setHasPurchased = useSetRecoilState(purchaseState)
 
-  const role = localStorage.getItem("role");
-  console.log(role);
+//   const [hasPurchased, setHasPurchased] = useState(false);
 
   const getCourse = async () => {
     try {
@@ -37,12 +38,13 @@ function Course() {
         `${BASE_URL}/users/haspurchased/${courseId}`,
         {
           headers: {
-            Authorization: `Bearer ` + localStorage.get("token"),
+            Authorization: `Bearer ` + localStorage.getItem("token"),
           },
         }
       );
-      if (response.data.status == 200) {
-        setHasPurchased(true);
+      console.log(response.status)
+      if (response.status == 200) {
+        setHasPurchased({isPurchase : true});
       }
     } catch (e) {
       console.log(e);
@@ -51,7 +53,7 @@ function Course() {
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/${role}/course/${courseId}`, {
+      .get(`${BASE_URL}/users/course/${courseId}`, {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
@@ -62,10 +64,7 @@ function Course() {
       .catch((e) => {
         setCourse({ isLoading: false, course: null });
       });
-
-    if (role == "users") {
-      getCourse();
-    }
+    getCourse();
   }, []);
 
   if (courseLoading) {
@@ -83,11 +82,6 @@ function Course() {
       <Grid container>
         <Grid item lg={8} md={12} sm={12}>
           <PurchaseCard
-            course={course}
-            setCourse={setCourse}
-            hasPurchased={hasPurchased}
-            setHasPurchased={setHasPurchased}
-            role={role}
           />
         </Grid>
 
@@ -161,126 +155,110 @@ function CourseCard() {
   );
 }
 
-function PurchaseCard({ hasPurchased, setHasPurchased, role }) {
-    const [courseDetails, setCourse] = useRecoilState(courseState);
+function PurchaseCard() {
+  const [courseDetails, setCourse] = useRecoilState(courseState);
+  const [hasPurchased, setHasPurchased] = useRecoilState(purchaseState);
 
-    const [title, setTitle] = useState(courseDetails.course.title);
-    const [description, setDescription] = useState(courseDetails.course.description);
-    const [price, setPrice] = useState(courseDetails.course.price);
-    const [image, setImage] = useState(courseDetails.course.imageLink);
-  
-  
-    const handlePurchaseCourse = () => {
-      fetch("http://localhost:3000/users/courses/" + course._id, {
-        method: "POST",
-  
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
+
+  useEffect(() => {
+    setTitle(courseDetails.course.title);
+    setDescription(courseDetails.course.description);
+    setPrice(courseDetails.course.price);
+    setImage(courseDetails.course.imageLink);
+  }, [courseDetails]);
+
+  const handlePurchaseCourse = () => {
+    axios
+      .post(`${BASE_URL}/users/courses/` + courseDetails.course._id, {}, {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
-      });
-      setHasPurchased(false);
-    };
-  
-    return (
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <Card
-          variant="outlined"
-          style={{
-            width: 400,
-            padding: 20,
-            marginTop: 200,
+      })
+      .then(() => setHasPurchased({isPurchase : false}))
+      .catch((e) => console.error(e));
+  };
+
+  return (
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <Card
+        variant="outlined"
+        style={{
+          width: 400,
+          padding: 20,
+          marginTop: 200,
+        }}
+      >
+        <Typography variant="h5">Purchase Course </Typography>
+
+        <br />
+        <br />
+        <TextField
+          value={title}
+          fullWidth={true}
+          label="Title"
+          InputProps={{
+            readOnly: true,
           }}
-        >
-          <Typography variant="h5">Update Course </Typography>
-  
-          <br />
-          <br />
-          <TextField
-            value={title}
-            fullWidth={true}
-            label="Title"
-            InputProps={{
-              readOnly: false 
-            }}
-            variant="outlined"
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <br />
-          <br />
-          <TextField
-            value={description}
-            fullWidth={true}
-            label="Description"
-            InputProps={{
-              readOnly:  false 
-            }}
-            variant="outlined"
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <br />
-          <br />
-          <TextField
-            value={image}
-            fullWidth={true}
-            label="Image Link"
-            InputProps={{
-              readOnly:  false 
-            }}
-            variant="outlined"
-            onChange={(e) => setImage(e.target.value)}
-          />
-          <br />
-          <br />
-          <TextField
-            value={price}
-            fullWidth={true}
-            label="Price"
-            InputProps={{
-              readOnly: false 
-            }}
-            variant="outlined"
-            onChange={(e) => setPrice(e.target.value)}
-          />
-          <br />
-          <br />
-          <Box textAlign="center">
-            <Button
-              size="large"
-              variant="contained"
-              disabled={role == "users" && !hasPurchased}
-              style={{ width: "100%" }}
-              onClick={handlePurchaseCourse}
-            >
-              {hasPurchased ? "purchase Course" : "Course Already Purchased!"}
-            </Button>
-          </Box>
-          
-              {hasPurchased ? (
-                <Box textAlign="center">
-                  <Button
-                    size="large"
-                    variant="contained"
-                    style={{ width: "100%" }}
-                    onClick={handlePurchaseCourse}
-                  >
-                    Purchase Course
-                  </Button>
-                </Box>
-              ) : (
-                <Button
-                  disabled
-                  size="large"
-                  variant="contained"
-                  style={{ width: "100%", color: "#000000", fontWeight: 600 }}
-                >
-                  Course Already Purchased!
-                </Button>
-              )}
-           
-          
-        </Card>
-      </div>
-    );
+          variant="outlined"
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <br />
+        <br />
+        <TextField
+          value={description}
+          fullWidth={true}
+          label="Description"
+          InputProps={{
+            readOnly: true,
+          }}
+          variant="outlined"
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <br />
+        <br />
+        <TextField
+          value={image}
+          fullWidth={true}
+          label="Image Link"
+          InputProps={{
+            readOnly: true,
+          }}
+          variant="outlined"
+          onChange={(e) => setImage(e.target.value)}
+        />
+        <br />
+        <br />
+        <TextField
+          value={price}
+          fullWidth={true}
+          label="Price"
+          InputProps={{
+            readOnly: true,
+          }}
+          variant="outlined"
+          onChange={(e) => setPrice(e.target.value)}
+        />
+        <br />
+        <br />
+        <Box textAlign="center">
+          <Button
+            size="large"
+            variant="contained"
+            disabled={!hasPurchased.isPurchase}
+            style={{ width: "100%" }}
+            onClick={handlePurchaseCourse}
+          >
+            {hasPurchased.isPurchase ? "purchase Course" : "Course Already Purchased!"}
+          </Button>
+        </Box>
+
+      </Card>
+    </div>
+  );
 }
 
 export default Course;

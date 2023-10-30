@@ -7,7 +7,7 @@ import {
   Grid,
   Button,
   Typography,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -16,56 +16,55 @@ function Courses() {
   const [courses, setCourses] = useState([]);
   const role = localStorage.getItem("role");
 
-
   useEffect(() => {
-   
+    const adminCourses = () => {
+      fetch("http://localhost:3000/admin/courses/", {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }).then(callback1);
+      function callback1(res) {
+        res.json().then(callback2);
+      }
 
-   const adminCourses = () => 
-   {
+      function callback2(data) {
+        setCourses(data.courses);
+        console.log(data.courses);
+      }
+    };
 
-    fetch("http://localhost:3000/admin/courses/", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    }).then(callback1);
-    function callback1(res) {
-      res.json().then(callback2);
-    }
+    const userCourses = () => {
+      fetch("http://localhost:3000/users/courses/", {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }).then(callback1);
+      function callback1(res) {
+        res.json().then(callback2);
+      }
 
-    function callback2(data) {
-      setCourses(data.courses);
-      console.log(data.courses);
-    }
-   } 
-
-   const userCourses = () => {
-    fetch("http://localhost:3000/users/courses/", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    }).then(callback1);
-    function callback1(res) {
-      res.json().then(callback2);
-    }
-
-    function callback2(data) {
-      setCourses(data.courses);
-      console.log(data.courses);
-    }
-   }
-   role == "admin" ? adminCourses() : userCourses();
-
+      function callback2(data) {
+        setCourses(data.courses);
+        console.log(data.courses);
+      }
+    };
+    role == "admin" ? adminCourses() : userCourses();
   }, []);
 
   if (!courses.length) {
-    return(
-      <div style={{ display: "flex", justifyContent: "center", alignItems:'center' }}>
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <CircularProgress color="success" />
       </div>
-    )
-    
+    );
   }
   return (
     <div
@@ -108,17 +107,25 @@ function Courses() {
         <div
           style={{ display: "flex", justifyContent: "center", marginTop: 20 }}
         >
-
-      <Button
-      variant="contained"
-      onClick={() => {
-        navigate("/course/" + course._id);
-      }}
-    >
-     {role == 'admin' ?  "Edit" : "Buy"}
-    </Button>
-
-      
+          {role == "admin" ? (
+            <Button
+              variant="contained"
+              onClick={() => {
+                navigate("/course/" + course._id);
+              }}
+            >
+              Edit
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={() => {
+                navigate("/purchasecourse/" + course._id);
+              }}
+            >
+              Buy
+            </Button>
+          )}
         </div>
       </Card>
     );
