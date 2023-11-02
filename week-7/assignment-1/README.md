@@ -11,7 +11,7 @@ You WILL need mongoDB running locally, or a cloud mongoDB instance. Please repla
  - Set strict to false for now until we add all types.
  - Set outDir to dist so as to not pollute your original folder
  - Try running it, notice the errors that you see.
-   - The errors you will see should be of the format 
+   - The errors you will see should be of the format   
    - 'mongoose' was also declared here.
    - Move all requires => imports to fix these errors. This is related to a bug bug in TS (https://stackoverflow.com/questions/35758584/cannot-redeclare-block-scoped-variable)
    - For example, convert

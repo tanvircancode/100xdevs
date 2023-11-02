@@ -1,12 +1,20 @@
-const express = require('express');
-const { authenticateJwt, SECRET } = require("../middleware/index");
-const { Todo } = require("../db");
-const router = express.Router();
+import express from 'express';
+import { authenticateJwt, SECRET } from "../middleware/index";
+import  {Todo}  from "../db";
+const  router = express.Router();
+import { Request, Response } from 'express';
 
-router.post('/todos', authenticateJwt, (req, res) => {
+interface CustomRequest extends Request {
+  headers: {
+    userId: string; // Define the type for userId based on your data model
+  };
+}
+
+router.post('/todos', authenticateJwt, (req : CustomRequest, res: Response) => {
+  const userId1 = req.headers.userId;
   const { title, description } = req.body;
   const done = false;
-  const userId = req.userId;
+  const userId = userId1;
 
   const newTodo = new Todo({ title, description, done, userId });
 
@@ -20,8 +28,9 @@ router.post('/todos', authenticateJwt, (req, res) => {
 });
 
 
-router.get('/todos', authenticateJwt, (req, res) => {
-  const userId = req.userId;
+router.get('/todos', authenticateJwt, (req: CustomRequest, res: Response) => {
+  const userId1 = req.headers.userId;
+  const userId = userId1;
 
   Todo.find({ userId })
     .then((todos) => {
@@ -32,9 +41,10 @@ router.get('/todos', authenticateJwt, (req, res) => {
     });
 });
 
-router.patch('/todos/:todoId/done', authenticateJwt, (req, res) => {
+router.patch('/todos/:todoId/done', authenticateJwt, (req: CustomRequest, res : Response) => {
+  const userId1 = req.headers.userId;
   const { todoId } = req.params;
-  const userId = req.userId;
+  const userId = userId1;
 
   Todo.findOneAndUpdate({ _id: todoId, userId }, { done: true }, { new: true })
     .then((updatedTodo) => {
@@ -48,4 +58,4 @@ router.patch('/todos/:todoId/done', authenticateJwt, (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;

@@ -14,6 +14,7 @@ const generateJwtAdmin = (user) => {
       username: user.username,
       role: user.role,
     };
+    
     return jwt.sign(payload, secretKeyAdmin, { expiresIn: "1h" });
   };
 
