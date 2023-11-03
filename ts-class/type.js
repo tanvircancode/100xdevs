@@ -1,13 +1,13 @@
 "use strict";
 // basic example
 function renderShape(shape) {
-    console.log('rendered');
+    console.log(shape);
 }
 function calculateArea(shape) {
     console.log('Calculate area');
 }
-console.log(renderShape({
+renderShape({
     radius: 10,
     side: 5,
     height: 7
-}));
+});

@@ -17,23 +17,23 @@ const express_1 = __importDefault(require("express"));
 const middleware_1 = require("../middleware");
 const db_1 = require("../db");
 const router = express_1.default.Router();
-const userId = 1;
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, password } = req.body;
-    const user = yield db_1.User.findOne({ username });
+    const inputs = req.body;
+    // const { username, password } = req.body;
+    const user = yield db_1.User.findOne({ username: inputs.username });
     if (user) {
         res.status(403).json({ message: "User already exists" });
     }
     else {
-        const newUser = new db_1.User({ username, password });
+        const newUser = new db_1.User({ username: inputs.username, password: inputs.password });
         yield newUser.save();
         const token = jsonwebtoken_1.default.sign({ id: newUser._id }, middleware_1.SECRET, { expiresIn: "1h" });
         res.json({ message: "User created successfully", token });
     }
 }));
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, password } = req.body;
-    const user = yield db_1.User.findOne({ username, password });
+    const inputs = req.body;
+    const user = yield db_1.User.findOne({ username: inputs.username, password: inputs.password });
     if (user) {
         const token = jsonwebtoken_1.default.sign({ id: user._id }, middleware_1.SECRET, { expiresIn: "1h" });
         res.json({ message: "Logged in successfully", token });
@@ -43,7 +43,7 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 }));
 router.get("/me", middleware_1.authenticateJwt, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.headers.userId;
+    const userId = req.headers['userId'];
     const user = yield db_1.User.findOne({ _id: userId });
     if (user) {
         res.json({ username: user.username });

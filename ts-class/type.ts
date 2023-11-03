@@ -38,16 +38,16 @@ interface Rectangle {
 type Shape = Circle | Square | Rectangle;
 
 function renderShape(shape: Shape) {
-  console.log('rendered');
+  console.log(shape);
 }
 
 function calculateArea(shape: Shape) {
   console.log('Calculate area');
 }
 
-console.log(renderShape({
+renderShape({
 radius : 10,
 side: 5,
 height: 7
 
-}))
+})

@@ -3,34 +3,32 @@ import express from "express";
 import { authenticateJwt, SECRET } from "../middleware";
 import { User } from "../db";
 const router = express.Router();
-import { Request, Response } from 'express';
 
-interface CustomRequest extends Request {
-  headers: {
-    userId: string; // Define the type for userId based on your data model
-  };
+interface CreateUserInput {
+  username : string;
+  password: string;
 }
 
+type UserType = CreateUserInput; 
 
-type server = Request | Response;
-const userId = 1;
-
-router.post("/signup", async (req : Request, res : Response) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username });
+router.post("/signup", async (req , res ) => {
+  const inputs : UserType = req.body;
+  // const { username, password } = req.body;
+  const user = await User.findOne({ username: inputs.username });
   if (user) {
     res.status(403).json({ message: "User already exists" });
   } else {
-    const newUser = new User({ username, password });
+    const newUser = new User({ username: inputs.username, password: inputs.password });
     await newUser.save();
     const token = jwt.sign({ id: newUser._id }, SECRET, { expiresIn: "1h" });
     res.json({ message: "User created successfully", token });
   }
 });
 
-router.post("/login", async (req: Request, res: Response) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username, password });
+router.post("/login", async (req, res) => {
+  const inputs : UserType = req.body;
+
+  const user = await User.findOne({  username: inputs.username, password: inputs.password });
   if (user) {
     const token = jwt.sign({ id: user._id }, SECRET, { expiresIn: "1h" });
     res.json({ message: "Logged in successfully", token });
@@ -39,8 +37,8 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/me",authenticateJwt, async (req: CustomRequest, res: Response) => {
-  const userId = req.headers.userId;
+router.get("/me",authenticateJwt, async (req, res) => {
+  const userId = req.headers['userId'];
   const user = await User.findOne({ _id: userId });
   if (user) {
     res.json({ username: user.username });

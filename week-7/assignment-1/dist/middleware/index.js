@@ -10,11 +10,18 @@ const authenticateJwt = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (authHeader) {
         const token = authHeader.split(" ")[1];
-        jsonwebtoken_1.default.verify(token, exports.SECRET, (err, user) => {
+        jsonwebtoken_1.default.verify(token, exports.SECRET, (err, payload) => {
             if (err) {
                 return res.sendStatus(403);
             }
-            req.userId = user.id;
+            // req.userId = user.id;
+            if (!payload) {
+                return res.sendStatus(403);
+            }
+            if (typeof payload === 'string') {
+                return res.sendStatus(403);
+            }
+            req.headers["userId"] = payload.id;
             next();
         });
     }

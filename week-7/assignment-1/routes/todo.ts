@@ -1,60 +1,57 @@
-import express from 'express';
+import express from "express";
 import { authenticateJwt, SECRET } from "../middleware/index";
-import  {Todo}  from "../db";
-const  router = express.Router();
-import { Request, Response } from 'express';
+import { Todo } from "../db";
+const router = express.Router();
 
-interface CustomRequest extends Request {
-  headers: {
-    userId: string; // Define the type for userId based on your data model
-  };
+interface CreateTodoInput {
+  title: string;
+  description: string;
 }
+type UserType = CreateTodoInput; 
 
-router.post('/todos', authenticateJwt, (req : CustomRequest, res: Response) => {
-  const userId1 = req.headers.userId;
-  const { title, description } = req.body;
+router.post("/todos", authenticateJwt, (req, res) => {
+  const userId = req.headers["userId"];
+  // const { title, description } = req.body;
+  const inputs:UserType = req.body;
   const done = false;
-  const userId = userId1;
 
-  const newTodo = new Todo({ title, description, done, userId });
+  const newTodo = new Todo({ title : inputs.title, description : inputs.description, done, userId });
 
-  newTodo.save()
+  newTodo
+    .save()
     .then((savedTodo) => {
       res.status(201).json(savedTodo);
     })
     .catch((err) => {
-      res.status(500).json({ error: 'Failed to create a new todo' });
+      res.status(500).json({ error: "Failed to create a new todo" });
     });
 });
 
-
-router.get('/todos', authenticateJwt, (req: CustomRequest, res: Response) => {
-  const userId1 = req.headers.userId;
-  const userId = userId1;
+router.get("/todos", authenticateJwt, (req, res) => {
+  const userId = req.headers["userId"];
 
   Todo.find({ userId })
     .then((todos) => {
       res.json(todos);
     })
     .catch((err) => {
-      res.status(500).json({ error: 'Failed to retrieve todos' });
+      res.status(500).json({ error: "Failed to retrieve todos" });
     });
 });
 
-router.patch('/todos/:todoId/done', authenticateJwt, (req: CustomRequest, res : Response) => {
-  const userId1 = req.headers.userId;
+router.patch("/todos/:todoId/done", authenticateJwt, (req, res) => {
+  const userId = req.headers["userId"];
   const { todoId } = req.params;
-  const userId = userId1;
 
   Todo.findOneAndUpdate({ _id: todoId, userId }, { done: true }, { new: true })
     .then((updatedTodo) => {
       if (!updatedTodo) {
-        return res.status(404).json({ error: 'Todo not found' });
+        return res.status(404).json({ error: "Todo not found" });
       }
       res.json(updatedTodo);
     })
     .catch((err) => {
-      res.status(500).json({ error: 'Failed to update todo' });
+      res.status(500).json({ error: "Failed to update todo" });
     });
 });
 
