@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@types/google-apps-script": "^1.0.76"
+  },
+
+  "type": "module"
+}
