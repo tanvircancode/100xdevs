@@ -23,6 +23,11 @@ const ans3 = getFirstElement([
     },
 ]);
 // console.log(ans3);
-const ans4 = swapArgs('5', "two");
-console.log(ans4);
 ans2.toLowerCase();
+const ans4 = swapArgs(1, "two");
+function updateTodo(id, newProp) {
+}
+updateTodo(1, {
+    title: "go to gym",
+    description: "Everyday at 8 am",
+});
