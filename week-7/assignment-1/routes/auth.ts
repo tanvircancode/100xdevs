@@ -11,7 +11,7 @@ interface CreateUserInput {
 }
 
 const signupInput = z.object({
-  username : z.string().min(1).max(20),
+  username : z.string().min(1).max(20).email(),
   password : z.string().min(1).max(20),
 })
 type UserType = CreateUserInput;

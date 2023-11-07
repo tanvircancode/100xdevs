@@ -26,11 +26,12 @@ function useTodos() {
             setLoading(false)
         };
         getTodos();
-    }, [todos]);
+    }, []);
 
     return {
         loading,
         todos,
+        setTodos
         
     }
 }
@@ -41,7 +42,7 @@ const TodoList = () => {
     const [description, setDescription] = useState('');
     const authStateValue = useRecoilValue(authState);
      // @ts-ignore
-    const {loading , todos }  = useTodos();
+    const {loading , todos, setTodos }  = useTodos();
     
 
     const addTodo = async () => {
