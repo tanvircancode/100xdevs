@@ -1,21 +1,42 @@
 import express from "express";
 import { authenticateJwt, SECRET } from "../middleware/index";
 import { Todo } from "../db";
+import {z} from "zod";
 const router = express.Router();
 
-interface CreateTodoInput {
-  title: string;
-  description: string;
-}
-type UserType = CreateTodoInput; 
+// interface CreateTodoInput {
+//   title: string;
+//   description: string;
+// }
+// type UserType = CreateTodoInput; 
+
+const todosInput = z.object({
+  title : z.string().min(2).max(25),
+  description : z.string().min(2).max(25),
+})
 
 router.post("/todos", authenticateJwt, (req, res) => {
+  
   const userId = req.headers["userId"];
+
+  const parsedInput = todosInput.safeParse(req.body);
+  if(!parsedInput.success) {
+    res.status(411).json({
+      message: parsedInput.error,
+    })
+    return;
+  }
+
+
   // const { title, description } = req.body;
-  const inputs:UserType = req.body;
+  // const inputs:UserType = req.body;
+
+  const title = parsedInput.data.title;
+  const description = parsedInput.data.description;
+
   const done = false;
 
-  const newTodo = new Todo({ title : inputs.title, description : inputs.description, done, userId });
+  const newTodo = new Todo({ title , description , done, userId });
 
   newTodo
     .save()

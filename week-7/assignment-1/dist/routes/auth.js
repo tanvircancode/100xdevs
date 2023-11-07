@@ -45,8 +45,16 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 }));
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const inputs = req.body;
-    const user = yield db_1.User.findOne({ username: inputs.username, password: inputs.password });
+    const parsedInput = signupInput.safeParse(req.body);
+    if (!parsedInput.success) {
+        res.status(411).json({
+            message: parsedInput.error
+        });
+        return;
+    }
+    const username = parsedInput.data.username;
+    const password = parsedInput.data.password;
+    const user = yield db_1.User.findOne({ username, password });
     if (user) {
         const token = jsonwebtoken_1.default.sign({ id: user._id }, middleware_1.SECRET, { expiresIn: "1h" });
         res.json({ message: "Logged in successfully", token });
