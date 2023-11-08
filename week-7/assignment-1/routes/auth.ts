@@ -5,16 +5,7 @@ import { User } from "../db";
 import {z} from "zod";
 const router = express.Router();
 
-interface CreateUserInput {
-  username : string;
-  password: string;
-}
 
-const signupInput = z.object({
-  username : z.string().min(1).max(20).email(),
-  password : z.string().min(1).max(20),
-})
-type UserType = CreateUserInput;
 
 router.post("/signup", async (req , res ) => {
   const parsedInput = signupInput.safeParse(req.body);
