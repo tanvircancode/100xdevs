@@ -2,6 +2,7 @@ import express from "express";
 import { authenticateJwt, SECRET } from "../middleware/index";
 import { Todo } from "../db";
 import {z} from "zod";
+import { signupInput , todosInput} from "@survivor_tanvir/common";
 const router = express.Router();
 
 // interface CreateTodoInput {
@@ -10,10 +11,10 @@ const router = express.Router();
 // }
 // type UserType = CreateTodoInput; 
 
-const todosInput = z.object({
-  title : z.string().min(2).max(25),
-  description : z.string().min(2).max(25),
-})
+// const todosInput = z.object({
+//   title : z.string().min(2).max(25),
+//   description : z.string().min(2).max(25),
+// })
 
 router.post("/todos", authenticateJwt, (req, res) => {
   

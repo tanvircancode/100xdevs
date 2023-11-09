@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {Link} from 'react-router-dom';
 import {useSetRecoilState} from "recoil";
 import {authState} from "../store/authState.ts";
+import {SignupParams} from "@survivor_tanvir/common";
 
 const Signup = () => {
     const [username, setUsername] = useState('');

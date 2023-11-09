@@ -3,18 +3,17 @@ import express from "express";
 import { authenticateJwt, SECRET } from "../middleware";
 import { User } from "../db";
 import {z} from "zod";
+import {signupInput} from "@survivor_tanvir/common";
 const router = express.Router();
-
 
 
 router.post("/signup", async (req , res ) => {
   const parsedInput = signupInput.safeParse(req.body);
   if(!parsedInput.success) {
-     res.status(411).json({
+    return res.status(411).json({
       message : parsedInput.error
     });
     
-    return;
   }
   // const inputs : UserType = req.body;
   const username = parsedInput.data.username;
