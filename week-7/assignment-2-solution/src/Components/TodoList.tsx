@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { authState } from '../store/authState.ts';
 import { useRecoilValue } from "recoil";
-
+import { TodosParams } from '@survivor_tanvir/common';
 // interface Todo {
 //     _id: string,
 //     title: string;
@@ -43,13 +43,18 @@ const TodoList = () => {
     const authStateValue = useRecoilValue(authState);
      // @ts-ignore
     const {loading , todos, setTodos }  = useTodos();
+
+    const todosParams : TodosParams = {
+        title : title,
+        description: description
+    }
     
 
     const addTodo = async () => {
         const response = await fetch('http://localhost:3000/todo/todos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem("token")}` },
-            body: JSON.stringify({ title, description })
+            body: JSON.stringify(todosParams)
         });
         const data = await response.json();
 
