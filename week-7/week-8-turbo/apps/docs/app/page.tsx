@@ -1,11 +1,12 @@
-import { Signup } from "ui";
+// import { Signup } from "ui";
+
 
 
 
 export default function Page() {
   return (
     <>
-      <Signup />
+      {/* <Signup /> */}
     </>
   );
 }
